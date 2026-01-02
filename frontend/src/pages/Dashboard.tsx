@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   PlusIcon,
@@ -11,6 +10,7 @@ import { useDataStore } from '@/store/dataStore';
 import { formatCurrency, formatDateShort } from '@/utils/format';
 import Layout from '@/components/Layout';
 import ReceiptScanner from '@/components/ReceiptScanner';
+import ExpenseModal from '@/components/ExpenseModal';
 
 export default function Dashboard() {
   const {
@@ -24,6 +24,7 @@ export default function Dashboard() {
   } = useDataStore();
 
   const [showScanner, setShowScanner] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -59,16 +60,15 @@ export default function Dashboard() {
               <span>Scansiona Ricevuta</span>
             </motion.button>
 
-            <Link to="/expenses/new">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
-              >
-                <PlusIcon className="w-5 h-5" />
-                <span>Nuova Spesa</span>
-              </motion.button>
-            </Link>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowExpenseModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              <PlusIcon className="w-5 h-5" />
+              <span>Nuova Spesa</span>
+            </motion.button>
           </div>
         </div>
 
@@ -236,6 +236,17 @@ export default function Dashboard() {
       {showScanner && (
         <ReceiptScanner onClose={() => setShowScanner(false)} />
       )}
+
+      {/* Modal Nuova Spesa */}
+      <ExpenseModal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onSuccess={() => {
+          fetchExpenses({ limit: 10 });
+          fetchStats();
+          fetchAccounts();
+        }}
+      />
     </Layout>
   );
 }
