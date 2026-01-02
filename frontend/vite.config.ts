@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // Ascolta su tutte le interfacce di rete
     port: 5173,
     proxy: {
       '/api': {
