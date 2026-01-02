@@ -40,28 +40,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-slate-50 to-primary-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-slate-50 to-primary-100 dark:from-slate-900 dark:via-slate-800 dark:to-primary-900 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white rounded-3xl shadow-2xl p-8">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-8">
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center text-white text-4xl shadow-xl">
-              💰
+              🏛️
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-            {isRegister ? 'Registrati' : 'Benvenuto'}
+          <h1 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            Lighthouse Money Manager
           </h1>
-          <p className="text-center text-slate-600 mb-8">
+          <p className="text-center text-slate-600 dark:text-slate-400 mb-2">
+            {isRegister ? 'Registrazione' : 'Benvenuto'}
+          </p>
+          <p className="text-center text-sm text-slate-500 dark:text-slate-500 mb-8">
             {isRegister
-              ? 'Crea il tuo account per iniziare'
-              : 'Accedi al tuo account'}
+              ? 'Crea il tuo account per iniziare a gestire le finanze'
+              : 'Accedi per gestire le tue finanze'}
           </p>
 
           {error && (
