@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useDataStore } from '@/store/dataStore';
 import { expensesAPI } from '@/services/api';
+import CategoryModal from './CategoryModal';
 import type { Expense, CreateExpenseDTO } from '@/types';
 
 interface Props {
@@ -33,6 +34,8 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showDescriptionDropdown, setShowDescriptionDropdown] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
     fetchAccounts();
@@ -95,6 +98,20 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
     setFormData({ ...formData, accountId: account.id });
     setAccountSearch(`${account.name} (${account.type})`);
     setShowAccountDropdown(false);
+  };
+
+  const handleCategoryCreated = async () => {
+    // Refresh categories list
+    await fetchCategories();
+
+    // Find the newly created category by name
+    const newCategory = categories.find(c => c.name === newCategoryName);
+    if (newCategory) {
+      handleCategorySelect(newCategory);
+    }
+
+    setShowCategoryModal(false);
+    setNewCategoryName('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -298,19 +315,34 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Cerca o seleziona categoria..."
               />
-              {showCategoryDropdown && filteredCategories.length > 0 && (
+              {showCategoryDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                  {filteredCategories.map((cat) => (
+                  {filteredCategories.length > 0 ? (
+                    filteredCategories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleCategorySelect(cat)}
+                        className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center gap-3"
+                      >
+                        <span className="text-2xl">{cat.icon}</span>
+                        <span className="font-medium text-slate-900 dark:text-white">{cat.name}</span>
+                      </button>
+                    ))
+                  ) : categorySearch.trim().length > 0 ? (
                     <button
-                      key={cat.id}
                       type="button"
-                      onClick={() => handleCategorySelect(cat)}
-                      className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center gap-3"
+                      onClick={() => {
+                        setNewCategoryName(categorySearch);
+                        setShowCategoryModal(true);
+                        setShowCategoryDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center gap-3 text-primary-600 dark:text-primary-400"
                     >
-                      <span className="text-2xl">{cat.icon}</span>
-                      <span className="font-medium text-slate-900 dark:text-white">{cat.name}</span>
+                      <PlusCircleIcon className="w-5 h-5" />
+                      <span className="font-medium">➕ Crea categoria "{categorySearch}"</span>
                     </button>
-                  ))}
+                  ) : null}
                 </div>
               )}
             </div>
@@ -363,6 +395,17 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
           </form>
         </motion.div>
       </motion.div>
+
+      {/* Category Modal for creating new categories on the fly */}
+      <CategoryModal
+        isOpen={showCategoryModal}
+        onClose={() => {
+          setShowCategoryModal(false);
+          setNewCategoryName('');
+        }}
+        onSuccess={handleCategoryCreated}
+        initialName={newCategoryName}
+      />
     </AnimatePresence>
   );
 }
