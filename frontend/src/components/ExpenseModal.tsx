@@ -150,7 +150,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
           formDataUpload.append('files', file);
         });
 
-        await fetch('http://localhost:3000/api/attachments/upload', {
+        await fetch('/api/attachments/upload', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
