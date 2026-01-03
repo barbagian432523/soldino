@@ -14,6 +14,7 @@ import Expenses from '@/pages/Expenses';
 import Accounts from '@/pages/Accounts';
 import Categories from '@/pages/Categories';
 import Calendar from '@/pages/Calendar';
+import Loans from '@/pages/Loans';
 import Statistics from '@/pages/Statistics';
 import Settings from '@/pages/Settings';
 
@@ -87,6 +88,15 @@ function App() {
           element={
             <PrivateRoute>
               <Calendar />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/loans"
+          element={
+            <PrivateRoute>
+              <Loans />
             </PrivateRoute>
           }
         />

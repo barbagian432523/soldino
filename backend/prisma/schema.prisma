@@ -24,6 +24,8 @@ model User {
   accounts      Account[]
   expenses      Expense[]
   categories    Category[]
+  contacts      Contact[]
+  loans         Loan[]
 
   @@map("users")
 }
@@ -169,4 +171,64 @@ model Attachment {
 
   @@map("attachments")
   @@index([expenseId])
+}
+
+// Modello Contatto (Rubrica semplificata)
+model Contact {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relazioni
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loans         Loan[]
+
+  @@map("contacts")
+  @@index([userId])
+}
+
+// Tipo di prestito
+enum LoanType {
+  LENT          // Prestato (siamo creditori)
+  BORROWED      // Ricevuto (siamo debitori)
+}
+
+// Stato del prestito
+enum LoanStatus {
+  ACTIVE        // Attivo
+  PAID          // Pagato
+  CANCELLED     // Annullato
+}
+
+// Modello Prestito/Rimborso
+model Loan {
+  id            String      @id @default(uuid())
+  type          LoanType
+  amount        Decimal     @db.Decimal(12, 2)
+  remainingAmount Decimal   @db.Decimal(12, 2) // Importo rimanente
+  description   String
+  notes         String?     @db.Text
+  loanDate      DateTime    @default(now())
+  dueDate       DateTime?   // Data scadenza (opzionale)
+  status        LoanStatus  @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relazioni
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contactId     String
+  contact       Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("loans")
+  @@index([userId])
+  @@index([contactId])
+  @@index([status])
+  @@index([type])
 }

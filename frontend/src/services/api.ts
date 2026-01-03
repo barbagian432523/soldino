@@ -8,6 +8,13 @@ import type {
   UpdateExpenseDTO,
   Stats,
   ExpenseFilters,
+  Contact,
+  CreateContactDTO,
+  UpdateContactDTO,
+  Loan,
+  CreateLoanDTO,
+  UpdateLoanDTO,
+  LoanSummary,
 } from '@/types';
 
 const api = axios.create({
@@ -134,6 +141,45 @@ export const uploadAPI = {
   },
 
   deleteAttachment: (id: string) => api.delete(`/attachments/${id}`),
+};
+
+// ========== CONTACTS ==========
+export const contactsAPI = {
+  getAll: () => api.get<{ contacts: Contact[] }>('/contacts'),
+
+  getOne: (id: string) => api.get<{ contact: Contact }>(`/contacts/${id}`),
+
+  create: (data: CreateContactDTO) =>
+    api.post<{ contact: Contact }>('/contacts', data),
+
+  update: (id: string, data: UpdateContactDTO) =>
+    api.put<{ contact: Contact }>(`/contacts/${id}`, data),
+
+  delete: (id: string) => api.delete(`/contacts/${id}`),
+};
+
+// ========== LOANS ==========
+export const loansAPI = {
+  getAll: (filters?: { contactId?: string; status?: string; type?: string }) =>
+    api.get<{ loans: Loan[] }>('/loans', { params: filters }),
+
+  getOne: (id: string) => api.get<{ loan: Loan }>(`/loans/${id}`),
+
+  getSummary: () => api.get<{ summary: LoanSummary }>('/loans/summary'),
+
+  create: (data: CreateLoanDTO) =>
+    api.post<{ loan: Loan }>('/loans', data),
+
+  update: (id: string, data: UpdateLoanDTO) =>
+    api.put<{ loan: Loan }>(`/loans/${id}`, data),
+
+  delete: (id: string) => api.delete(`/loans/${id}`),
+
+  markAsPaid: (id: string) =>
+    api.put<{ loan: Loan }>(`/loans/${id}/mark-paid`),
+
+  recordPayment: (id: string, amount: number) =>
+    api.post<{ loan: Loan }>(`/loans/${id}/payment`, { amount }),
 };
 
 export default api;

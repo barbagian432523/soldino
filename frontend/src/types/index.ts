@@ -131,3 +131,78 @@ export interface ExpenseFilters {
   page?: number;
   limit?: number;
 }
+
+// Contact types
+export interface Contact {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    loans: number;
+  };
+}
+
+export interface CreateContactDTO {
+  name: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
+}
+
+export interface UpdateContactDTO {
+  name?: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
+}
+
+// Loan types
+export type LoanType = 'LENT' | 'BORROWED';
+export type LoanStatus = 'ACTIVE' | 'PAID' | 'CANCELLED';
+
+export interface Loan {
+  id: string;
+  type: LoanType;
+  amount: number;
+  remainingAmount: number;
+  description: string;
+  notes?: string;
+  loanDate: string;
+  dueDate?: string;
+  status: LoanStatus;
+  createdAt: string;
+  updatedAt: string;
+  contact: Contact;
+}
+
+export interface CreateLoanDTO {
+  type: LoanType;
+  amount: number;
+  description: string;
+  notes?: string;
+  loanDate?: string;
+  dueDate?: string;
+  contactId: string;
+}
+
+export interface UpdateLoanDTO {
+  amount?: number;
+  remainingAmount?: number;
+  description?: string;
+  notes?: string;
+  loanDate?: string;
+  dueDate?: string;
+  status?: LoanStatus;
+}
+
+export interface LoanSummary {
+  totalLent: number;
+  totalBorrowed: number;
+  netBalance: number;
+  activeLentCount: number;
+  activeBorrowedCount: number;
+}

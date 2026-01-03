@@ -4,6 +4,8 @@ import { AccountController } from '../controllers/accountController';
 import { CategoryController } from '../controllers/categoryController';
 import { ExpenseController } from '../controllers/expenseController';
 import { UploadController } from '../controllers/uploadController';
+import { ContactController } from '../controllers/contactController';
+import { LoanController } from '../controllers/loanController';
 import { authenticate } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 
@@ -50,5 +52,22 @@ router.post(
 );
 router.post('/upload/create-from-receipt', authenticate, UploadController.createFromReceipt);
 router.delete('/attachments/:id', authenticate, UploadController.deleteAttachment);
+
+// ========== CONTACT ROUTES ==========
+router.get('/contacts', authenticate, ContactController.getAll);
+router.get('/contacts/:id', authenticate, ContactController.getOne);
+router.post('/contacts', authenticate, ContactController.create);
+router.put('/contacts/:id', authenticate, ContactController.update);
+router.delete('/contacts/:id', authenticate, ContactController.delete);
+
+// ========== LOAN ROUTES ==========
+router.get('/loans/summary', authenticate, LoanController.getSummary);
+router.get('/loans', authenticate, LoanController.getAll);
+router.get('/loans/:id', authenticate, LoanController.getOne);
+router.post('/loans', authenticate, LoanController.create);
+router.put('/loans/:id', authenticate, LoanController.update);
+router.put('/loans/:id/mark-paid', authenticate, LoanController.markAsPaid);
+router.post('/loans/:id/payment', authenticate, LoanController.recordPayment);
+router.delete('/loans/:id', authenticate, LoanController.delete);
 
 export default router;
