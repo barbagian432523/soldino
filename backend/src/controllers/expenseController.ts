@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../config/database';
 import { AuthRequest, CreateExpenseDTO, UpdateExpenseDTO } from '../types';
 import { Prisma } from '@prisma/client';
+import { createAuditLog } from '../services/auditLog';
 
 export class ExpenseController {
   /**
@@ -183,6 +184,17 @@ export class ExpenseController {
         },
       });
 
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'CREATE',
+        entity: 'Expense',
+        entityId: expense.id,
+        description: `Creata ${data.type === 'EXPENSE' ? 'spesa' : 'entrata'}: ${data.description}`,
+        metadata: { amount: data.amount, type: data.type, category: category.name },
+        req,
+      });
+
       res.status(201).json({
         message: 'Spesa creata con successo',
         expense,
@@ -245,6 +257,17 @@ export class ExpenseController {
         },
       });
 
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'UPDATE',
+        entity: 'Expense',
+        entityId: id,
+        description: `Aggiornata ${expense.type === 'EXPENSE' ? 'spesa' : 'entrata'}: ${expense.description}`,
+        metadata: { changes: data },
+        req,
+      });
+
       res.json({
         message: 'Spesa aggiornata con successo',
         expense,
@@ -286,6 +309,17 @@ export class ExpenseController {
       });
 
       await prisma.expense.delete({ where: { id } });
+
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'DELETE',
+        entity: 'Expense',
+        entityId: id,
+        description: `Eliminata ${existing.type === 'EXPENSE' ? 'spesa' : 'entrata'}: ${existing.description}`,
+        metadata: { amount: Number(existing.amount), type: existing.type },
+        req,
+      });
 
       res.json({ message: 'Spesa eliminata con successo' });
     } catch (error) {

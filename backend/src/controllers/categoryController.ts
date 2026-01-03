@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import prisma from '../config/database';
 import { AuthRequest, CreateCategoryDTO } from '../types';
+import { createAuditLog } from '../services/auditLog';
 
 export class CategoryController {
   /**
@@ -42,6 +43,17 @@ export class CategoryController {
         },
       });
 
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'CREATE',
+        entity: 'Category',
+        entityId: category.id,
+        description: `Creata categoria: ${category.name}`,
+        metadata: { icon: category.icon, color: category.color },
+        req,
+      });
+
       res.status(201).json({
         message: 'Categoria creata con successo',
         category,
@@ -73,6 +85,17 @@ export class CategoryController {
       const category = await prisma.category.update({
         where: { id },
         data,
+      });
+
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'UPDATE',
+        entity: 'Category',
+        entityId: id,
+        description: `Aggiornata categoria: ${category.name}`,
+        metadata: { changes: data },
+        req,
       });
 
       res.json({
@@ -115,6 +138,17 @@ export class CategoryController {
       }
 
       await prisma.category.delete({ where: { id } });
+
+      // Audit log
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'DELETE',
+        entity: 'Category',
+        entityId: id,
+        description: `Eliminata categoria: ${existing.name}`,
+        metadata: { icon: existing.icon, color: existing.color },
+        req,
+      });
 
       res.json({ message: 'Categoria eliminata con successo' });
     } catch (error) {

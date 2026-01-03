@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../config/database';
 import { generateToken } from '../utils/jwt';
 import { RegisterDTO, LoginDTO, AuthRequest } from '../types';
+import { createAuditLog } from '../services/auditLog';
 
 export class AuthController {
   /**
@@ -89,6 +90,16 @@ export class AuthController {
 
       // Genera token
       const token = generateToken({ userId: user.id, email: user.email });
+
+      // Audit log
+      await createAuditLog({
+        userId: user.id,
+        action: 'LOGIN',
+        entity: 'User',
+        entityId: user.id,
+        description: `Login effettuato: ${user.email}`,
+        req,
+      });
 
       // Rimuovi password dalla risposta
       const { password: _, ...userWithoutPassword } = user;

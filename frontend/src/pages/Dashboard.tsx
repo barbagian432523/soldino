@@ -110,20 +110,18 @@ export default function Dashboard() {
               damping: 15
             }}
             whileHover={{ scale: 1.02, y: -4 }}
-            className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg glow-danger shimmer"
-            style={{
-              backgroundColor: 'rgba(254, 226, 226, 0.3)',
-              backdropFilter: 'blur(12px)',
-            }}
+            className="bg-white dark:bg-slate-800 rounded-3xl p-6 soft-shadow-lg border-2 border-red-100 dark:border-red-900"
           >
             <div className="flex items-center justify-between mb-1">
-              <p className="text-slate-800 dark:text-slate-200 text-sm font-semibold">Spese</p>
-              <ArrowDownIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <p className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Spese</p>
+              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-xl">
+                <ArrowDownIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
             </div>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
               {formatCurrency(stats?.totalExpenses || 0)}
             </p>
-            <p className="text-slate-700 dark:text-slate-300 text-xs mt-2 font-medium">Questo mese</p>
+            <p className="text-slate-600 dark:text-slate-400 text-xs mt-2">Questo mese</p>
           </motion.div>
 
           <motion.div
@@ -136,20 +134,18 @@ export default function Dashboard() {
               damping: 15
             }}
             whileHover={{ scale: 1.02, y: -4 }}
-            className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg glow-success shimmer"
-            style={{
-              backgroundColor: 'rgba(220, 252, 231, 0.3)',
-              backdropFilter: 'blur(12px)',
-            }}
+            className="bg-white dark:bg-slate-800 rounded-3xl p-6 soft-shadow-lg border-2 border-green-100 dark:border-green-900"
           >
             <div className="flex items-center justify-between mb-1">
-              <p className="text-slate-800 dark:text-slate-200 text-sm font-semibold">Entrate</p>
-              <ArrowUpIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <p className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Entrate</p>
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                <ArrowUpIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
             </div>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
               {formatCurrency(stats?.totalIncome || 0)}
             </p>
-            <p className="text-slate-700 dark:text-slate-300 text-xs mt-2 font-medium">Questo mese</p>
+            <p className="text-slate-600 dark:text-slate-400 text-xs mt-2">Questo mese</p>
           </motion.div>
         </div>
 
