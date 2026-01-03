@@ -25,6 +25,8 @@ router.get('/accounts/stats', authenticate, AccountController.getStats);
 router.post('/accounts', authenticate, AccountController.create);
 router.put('/accounts/:id', authenticate, AccountController.update);
 router.delete('/accounts/:id', authenticate, AccountController.delete);
+router.post('/accounts/:id/adjust', authenticate, AccountController.adjustBalance);
+router.post('/accounts/transfer', authenticate, AccountController.transfer);
 
 // ========== CATEGORY ROUTES ==========
 router.get('/categories', authenticate, CategoryController.getAll);

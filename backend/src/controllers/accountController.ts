@@ -143,4 +143,210 @@ export class AccountController {
       res.status(500).json({ error: 'Errore durante il recupero delle statistiche' });
     }
   }
+
+  /**
+   * Aggiusta il saldo di un account manualmente
+   */
+  static async adjustBalance(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { amount, reason } = req.body;
+
+      if (amount === undefined || amount === null) {
+        res.status(400).json({ error: 'Amount è richiesto' });
+        return;
+      }
+
+      // Verifica proprietà
+      const existing = await prisma.account.findFirst({
+        where: { id, userId: req.userId },
+      });
+
+      if (!existing) {
+        res.status(404).json({ error: 'Account non trovato' });
+        return;
+      }
+
+      // Aggiorna saldo
+      const account = await prisma.account.update({
+        where: { id },
+        data: {
+          balance: Number(amount),
+        },
+      });
+
+      // Crea audit log
+      const { createAuditLog } = await import('../services/auditLog');
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'UPDATE',
+        entity: 'Account',
+        entityId: id,
+        description: `Aggiustamento saldo account ${existing.name}: ${existing.balance} → ${amount}`,
+        metadata: {
+          oldBalance: existing.balance.toString(),
+          newBalance: amount.toString(),
+          reason: reason || 'Nessuna ragione specificata',
+        },
+        req,
+      });
+
+      res.json({
+        message: 'Saldo aggiustato con successo',
+        account,
+      });
+    } catch (error) {
+      console.error('Errore aggiustamento saldo:', error);
+      res.status(500).json({ error: 'Errore durante l\'aggiustamento del saldo' });
+    }
+  }
+
+  /**
+   * Trasferisci denaro tra due account (giroconto)
+   */
+  static async transfer(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { fromAccountId, toAccountId, amount, description, date } = req.body;
+
+      if (!fromAccountId || !toAccountId || !amount) {
+        res.status(400).json({ error: 'fromAccountId, toAccountId e amount sono richiesti' });
+        return;
+      }
+
+      if (fromAccountId === toAccountId) {
+        res.status(400).json({ error: 'Non puoi trasferire denaro allo stesso account' });
+        return;
+      }
+
+      const numericAmount = Number(amount);
+      if (numericAmount <= 0) {
+        res.status(400).json({ error: 'L\'importo deve essere positivo' });
+        return;
+      }
+
+      // Verifica proprietà di entrambi gli account
+      const [fromAccount, toAccount] = await Promise.all([
+        prisma.account.findFirst({
+          where: { id: fromAccountId, userId: req.userId },
+        }),
+        prisma.account.findFirst({
+          where: { id: toAccountId, userId: req.userId },
+        }),
+      ]);
+
+      if (!fromAccount) {
+        res.status(404).json({ error: 'Account di origine non trovato' });
+        return;
+      }
+
+      if (!toAccount) {
+        res.status(404).json({ error: 'Account di destinazione non trovato' });
+        return;
+      }
+
+      // Trova o crea categoria "Trasferimenti"
+      let transferCategory = await prisma.category.findFirst({
+        where: {
+          name: 'Trasferimenti',
+          OR: [{ userId: req.userId }, { isDefault: true }],
+        },
+      });
+
+      if (!transferCategory) {
+        transferCategory = await prisma.category.create({
+          data: {
+            name: 'Trasferimenti',
+            icon: '🔄',
+            color: '#6366F1',
+            description: 'Categoria per trasferimenti tra conti',
+            userId: req.userId,
+          },
+        });
+      }
+
+      // Crea due spese collegate in una transazione
+      const transferDate = date ? new Date(date) : new Date();
+      const transferDescription = description || `Trasferimento da ${fromAccount.name} a ${toAccount.name}`;
+
+      await prisma.$transaction(async (tx) => {
+        // Spesa dal conto di origine (negativa)
+        await tx.expense.create({
+          data: {
+            amount: numericAmount,
+            type: 'EXPENSE',
+            description: transferDescription,
+            notes: `Trasferito a ${toAccount.name}`,
+            date: transferDate,
+            userId: req.userId!,
+            accountId: fromAccountId,
+            categoryId: transferCategory.id,
+          },
+        });
+
+        // Entrata nel conto di destinazione (positiva)
+        await tx.expense.create({
+          data: {
+            amount: numericAmount,
+            type: 'INCOME',
+            description: transferDescription,
+            notes: `Ricevuto da ${fromAccount.name}`,
+            date: transferDate,
+            userId: req.userId!,
+            accountId: toAccountId,
+            categoryId: transferCategory.id,
+          },
+        });
+
+        // Aggiorna saldi
+        await tx.account.update({
+          where: { id: fromAccountId },
+          data: {
+            balance: {
+              decrement: numericAmount,
+            },
+          },
+        });
+
+        await tx.account.update({
+          where: { id: toAccountId },
+          data: {
+            balance: {
+              increment: numericAmount,
+            },
+          },
+        });
+      });
+
+      // Crea audit log
+      const { createAuditLog } = await import('../services/auditLog');
+      await createAuditLog({
+        userId: req.userId!,
+        action: 'CREATE',
+        entity: 'Transfer',
+        description: `Trasferimento di €${numericAmount} da ${fromAccount.name} a ${toAccount.name}`,
+        metadata: {
+          fromAccountId,
+          fromAccountName: fromAccount.name,
+          toAccountId,
+          toAccountName: toAccount.name,
+          amount: numericAmount,
+          description: transferDescription,
+        },
+        req,
+      });
+
+      res.json({
+        message: 'Trasferimento completato con successo',
+        transfer: {
+          fromAccount: fromAccount.name,
+          toAccount: toAccount.name,
+          amount: numericAmount,
+          description: transferDescription,
+        },
+      });
+    } catch (error) {
+      console.error('Errore trasferimento:', error);
+      res.status(500).json({ error: 'Errore durante il trasferimento' });
+    }
+  }
 }
