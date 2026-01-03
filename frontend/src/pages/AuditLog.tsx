@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ClockIcon,
-  UserIcon,
   DocumentTextIcon,
   ArrowUpTrayIcon,
   ArrowDownTrayIcon,
@@ -15,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface AuditLog {
   id: string;
@@ -116,9 +116,10 @@ export default function AuditLog() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <Layout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
             📋 Registro Eventi
@@ -128,13 +129,16 @@ export default function AuditLog() {
           </p>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
           onClick={() => setShowFilters(!showFilters)}
-          className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors flex items-center gap-2"
+          className="flex items-center gap-2 px-4 py-2 liquid-gradient text-white rounded-2xl soft-shadow-lg hover:soft-shadow"
         >
           <FunnelIcon className="w-5 h-5" />
           Filtri
-        </button>
+        </motion.button>
       </div>
 
       {/* Filtri */}
@@ -143,7 +147,7 @@ export default function AuditLog() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="glass-card p-6"
+          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg"
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -205,7 +209,7 @@ export default function AuditLog() {
       )}
 
       {/* Log List */}
-      <div className="glass-card">
+      <div className="glass-card dark:glass-card-dark rounded-3xl soft-shadow-lg">
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -286,6 +290,7 @@ export default function AuditLog() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 }
