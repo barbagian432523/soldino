@@ -44,28 +44,30 @@ export default function Dashboard() {
         {/* Header con pulsanti azione */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">Dashboard</h2>
-            <p className="text-slate-600 mt-1">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
               Panoramica delle tue finanze
             </p>
           </div>
 
           <div className="flex gap-3">
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onClick={() => setShowScanner(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl soft-shadow-lg hover:soft-shadow glow-primary"
             >
               <CameraIcon className="w-5 h-5" />
               <span>Scansiona Ricevuta</span>
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onClick={() => setShowExpenseModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="flex items-center gap-2 px-4 py-2 liquid-gradient text-white rounded-2xl soft-shadow-lg hover:soft-shadow"
             >
               <PlusIcon className="w-5 h-5" />
               <span>Nuova Spesa</span>
@@ -76,10 +78,16 @@ export default function Dashboard() {
         {/* Cards statistiche */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-xl"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              delay: 0.1,
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }}
+            whileHover={{ scale: 1.02, y: -4 }}
+            className="liquid-gradient rounded-3xl p-6 text-white soft-shadow-lg float-animation"
           >
             <p className="text-primary-100 text-sm font-medium mb-1">
               Saldo Totale
@@ -93,66 +101,91 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              delay: 0.2,
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }}
+            whileHover={{ scale: 1.02, y: -4 }}
+            className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg glow-danger shimmer"
           >
             <div className="flex items-center justify-between mb-1">
-              <p className="text-slate-600 text-sm font-medium">Spese</p>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">Spese</p>
               <ArrowDownIcon className="w-5 h-5 text-red-500" />
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">
               {formatCurrency(stats?.totalExpenses || 0)}
             </p>
-            <p className="text-slate-500 text-xs mt-2">Questo mese</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">Questo mese</p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              delay: 0.3,
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }}
+            whileHover={{ scale: 1.02, y: -4 }}
+            className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg glow-success shimmer"
           >
             <div className="flex items-center justify-between mb-1">
-              <p className="text-slate-600 text-sm font-medium">Entrate</p>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">Entrate</p>
               <ArrowUpIcon className="w-5 h-5 text-green-500" />
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">
               {formatCurrency(stats?.totalIncome || 0)}
             </p>
-            <p className="text-slate-500 text-xs mt-2">Questo mese</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">Questo mese</p>
           </motion.div>
         </div>
 
         {/* Conti */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 80 }}
+          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg liquid-morph"
+        >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-slate-900">I tuoi conti</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">I tuoi conti</h3>
             <Link
               to="/accounts"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium transition-colors"
             >
               Gestisci →
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {accounts.slice(0, 4).map((account) => (
+            {accounts.slice(0, 4).map((account, idx) => (
               <motion.div
                 key={account.id}
-                whileHover={{ scale: 1.02 }}
-                className="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  delay: 0.5 + idx * 0.1,
+                  type: "spring",
+                  stiffness: 120,
+                  damping: 20
+                }}
+                whileHover={{ scale: 1.03, x: 4 }}
+                className="glass-button rounded-2xl p-4 perspective-card"
                 style={{ borderLeftColor: account.color, borderLeftWidth: 4 }}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium text-slate-900">{account.name}</p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="font-medium text-slate-900 dark:text-white">{account.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       {account.type}
                     </p>
                   </div>
-                  <p className="text-lg font-bold text-slate-900">
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">
                     {formatCurrency(Number(account.balance))}
                   </p>
                 </div>
@@ -162,12 +195,17 @@ export default function Dashboard() {
         </div>
 
         {/* Ultime spese */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 80 }}
+          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg liquid-morph"
+        >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-slate-900">Ultime spese</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Ultime spese</h3>
             <Link
               to="/expenses"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium transition-colors"
             >
               Vedi tutte →
             </Link>
@@ -183,11 +221,18 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {expenses.map((expense) => (
+              {expenses.map((expense, idx) => (
                 <motion.div
                   key={expense.id}
-                  whileHover={{ x: 5 }}
-                  className="flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.6 + idx * 0.05,
+                    type: "spring",
+                    stiffness: 120
+                  }}
+                  whileHover={{ scale: 1.02, x: 8 }}
+                  className="glass-button flex items-center justify-between p-4 rounded-2xl soft-shadow perspective-card"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -199,10 +244,10 @@ export default function Dashboard() {
                       {expense.category.icon || '📄'}
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900">
+                      <p className="font-medium text-slate-900 dark:text-white">
                         {expense.description}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         {expense.category.name} •{' '}
                         {formatDateShort(expense.date)}
                       </p>
@@ -213,15 +258,15 @@ export default function Dashboard() {
                     <p
                       className={`text-lg font-bold ${
                         expense.type === 'EXPENSE'
-                          ? 'text-red-600'
-                          : 'text-green-600'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-green-600 dark:text-green-400'
                       }`}
                     >
                       {expense.type === 'EXPENSE' ? '-' : '+'}
                       {formatCurrency(Number(expense.amount))}
                     </p>
                     {expense.isAiGenerated && (
-                      <p className="text-xs text-purple-600 mt-1">
+                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
                         ✨ AI {expense.aiConfidence}%
                       </p>
                     )}
@@ -230,7 +275,7 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Modal Scanner Ricevute */}
