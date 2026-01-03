@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { PrismaClient } from '@prisma/client';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -14,9 +14,9 @@ const execAsync = promisify(exec);
  * GET /api/stats/system
  * Ottiene statistiche di sistema (DB size, numero operazioni, etc.)
  */
-router.get('/system', authMiddleware, async (req, res) => {
+router.get('/system', authenticate, async (req, res) => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.userId!;
 
     // Statistiche parallele
     const [
@@ -130,9 +130,9 @@ router.get('/system', authMiddleware, async (req, res) => {
  * GET /api/stats/dashboard
  * Statistiche rapide per il dashboard header
  */
-router.get('/dashboard', authMiddleware, async (req, res) => {
+router.get('/dashboard', authenticate, async (req, res) => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.userId!;
 
     const [totalExpenses, totalOperations, dbInfo] = await Promise.all([
       // Totale spese

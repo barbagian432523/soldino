@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { getAuditLogs, getAuditStats } from '../services/auditLog';
 import { AuditAction } from '@prisma/client';
 
@@ -9,7 +9,7 @@ const router = express.Router();
  * GET /api/audit-logs
  * Recupera i log di audit con filtri
  */
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   try {
     const {
       action,
@@ -46,7 +46,7 @@ router.get('/', authMiddleware, async (req, res) => {
       filters.offset = parseInt(offset as string, 10);
     }
 
-    const result = await getAuditLogs(req.user!.userId, filters);
+    const result = await getAuditLogs(req.userId!, filters);
 
     res.json(result);
   } catch (error: any) {
@@ -59,9 +59,9 @@ router.get('/', authMiddleware, async (req, res) => {
  * GET /api/audit-logs/stats
  * Ottiene statistiche sui log di audit
  */
-router.get('/stats', authMiddleware, async (req, res) => {
+router.get('/stats', authenticate, async (req, res) => {
   try {
-    const stats = await getAuditStats(req.user!.userId);
+    const stats = await getAuditStats(req.userId!);
     res.json(stats);
   } catch (error: any) {
     console.error('Errore recupero statistiche audit:', error);

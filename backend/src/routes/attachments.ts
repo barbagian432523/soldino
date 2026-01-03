@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import {
   upload,
   createAttachment,
@@ -20,7 +20,7 @@ const prisma = new PrismaClient();
  */
 router.post(
   '/upload',
-  authMiddleware,
+  authenticate,
   upload.array('files', 10), // Max 10 file per volta
   async (req, res) => {
     try {
@@ -39,7 +39,7 @@ router.post(
       const expense = await prisma.expense.findFirst({
         where: {
           id: expenseId,
-          userId: req.user!.userId,
+          userId: req.userId!,
         },
       });
 
@@ -58,7 +58,7 @@ router.post(
 
       // Log audit
       await createAuditLog({
-        userId: req.user!.userId,
+        userId: req.userId!,
         action: 'UPLOAD',
         entity: 'Attachment',
         description: `Caricati ${files.length} allegati per spesa ${expense.description}`,
@@ -85,7 +85,7 @@ router.post(
  * GET /api/attachments/:id
  * Download attachment
  */
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -93,7 +93,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
       where: {
         id,
         expense: {
-          userId: req.user!.userId,
+          userId: req.userId!,
         },
       },
     });
@@ -109,7 +109,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
     // Log audit
     await createAuditLog({
-      userId: req.user!.userId,
+      userId: req.userId!,
       action: 'DOWNLOAD',
       entity: 'Attachment',
       entityId: id,
@@ -137,7 +137,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
  * DELETE /api/attachments/:id
  * Elimina attachment
  */
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -146,7 +146,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       where: {
         id,
         expense: {
-          userId: req.user!.userId,
+          userId: req.userId!,
         },
       },
       include: {
@@ -166,7 +166,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     // Log audit
     await createAuditLog({
-      userId: req.user!.userId,
+      userId: req.userId!,
       action: 'DELETE',
       entity: 'Attachment',
       entityId: id,
@@ -188,7 +188,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
  * GET /api/attachments/expense/:expenseId
  * Ottieni tutti gli allegati di una spesa
  */
-router.get('/expense/:expenseId', authMiddleware, async (req, res) => {
+router.get('/expense/:expenseId', authenticate, async (req, res) => {
   try {
     const { expenseId } = req.params;
 
@@ -196,7 +196,7 @@ router.get('/expense/:expenseId', authMiddleware, async (req, res) => {
       where: {
         expenseId,
         expense: {
-          userId: req.user!.userId,
+          userId: req.userId!,
         },
       },
       orderBy: {
@@ -215,7 +215,7 @@ router.get('/expense/:expenseId', authMiddleware, async (req, res) => {
  * POST /api/attachments/check-duplicate
  * Verifica se esiste un file duplicato tramite hash
  */
-router.post('/check-duplicate', authMiddleware, async (req, res) => {
+router.post('/check-duplicate', authenticate, async (req, res) => {
   try {
     const { hash } = req.body;
 
