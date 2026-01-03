@@ -163,7 +163,7 @@ export class ExpenseController {
           categoryId: data.categoryId,
           // Recurring fields
           isRecurring: (data as any).isRecurring || false,
-          recurringFrequency: (data as any).recurringFrequency,
+          recurringFrequency: (data as any).recurringFrequency || null,
           recurringStartDate: (data as any).recurringStartDate ? new Date((data as any).recurringStartDate) : null,
           recurringEndDate: (data as any).recurringEndDate ? new Date((data as any).recurringEndDate) : null,
         },
