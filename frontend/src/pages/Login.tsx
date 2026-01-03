@@ -50,8 +50,17 @@ export default function Login() {
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-8">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center text-white text-4xl shadow-xl">
-              🏛️
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+              <img
+                src="/logoLMM.PNG"
+                alt="Lighthouse Money Manager"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = '🏛️';
+                  e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'text-4xl');
+                }}
+              />
             </div>
           </div>
 
