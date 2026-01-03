@@ -192,7 +192,7 @@ export default function Dashboard() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Ultime spese */}
         <motion.div
