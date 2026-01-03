@@ -162,7 +162,6 @@ const ICON_SUGGESTIONS: { [key: string]: string } = {
   'electricity': '⚡',
   'acqua': '💧',
   'water': '💧',
-  'gas': '🔥',
   'riscaldamento': '🔥',
   'heating': '🔥',
   'pulizia': '🧹',
