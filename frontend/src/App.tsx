@@ -12,6 +12,7 @@ import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
 import Expenses from '@/pages/Expenses';
 import Accounts from '@/pages/Accounts';
+import Categories from '@/pages/Categories';
 import Statistics from '@/pages/Statistics';
 import Settings from '@/pages/Settings';
 
@@ -67,6 +68,15 @@ function App() {
           element={
             <PrivateRoute>
               <Accounts />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/categories"
+          element={
+            <PrivateRoute>
+              <Categories />
             </PrivateRoute>
           }
         />

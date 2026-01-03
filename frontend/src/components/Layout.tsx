@@ -5,6 +5,7 @@ import {
   HomeIcon,
   CreditCardIcon,
   DocumentTextIcon,
+  TagIcon,
   ChartBarIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
@@ -22,6 +23,7 @@ const navItems = [
   { path: '/', label: 'Dashboard', icon: HomeIcon },
   { path: '/accounts', label: 'Conti', icon: CreditCardIcon },
   { path: '/expenses', label: 'Spese', icon: DocumentTextIcon },
+  { path: '/categories', label: 'Categorie', icon: TagIcon },
   { path: '/statistics', label: 'Statistiche', icon: ChartBarIcon },
   { path: '/settings', label: 'Impostazioni', icon: Cog6ToothIcon },
 ];
