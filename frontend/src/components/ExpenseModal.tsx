@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PlusCircleIcon, ArrowDownTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useDataStore } from '@/store/dataStore';
 import { expensesAPI } from '@/services/api';
 import CategoryModal from './CategoryModal';
@@ -119,6 +119,52 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
 
     setShowCategoryModal(false);
     setNewCategoryName('');
+  };
+
+  const handleDownloadAttachment = async (id: string, originalName: string) => {
+    try {
+      const response = await fetch(`/api/attachments/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Download fallito');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Errore download:', error);
+      alert('Errore durante il download del file');
+    }
+  };
+
+  const handleDeleteAttachment = async (id: string) => {
+    if (!confirm('Sei sicuro di voler eliminare questo allegato?')) return;
+
+    try {
+      const response = await fetch(`/api/attachments/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Eliminazione fallita');
+
+      // Refresh expense data to update attachments list
+      onSuccess?.();
+    } catch (error) {
+      console.error('Errore eliminazione:', error);
+      alert('Errore durante l\'eliminazione del file');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -470,22 +516,63 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
             {/* Allegati */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                📎 Allegati (max 10 file)
+                📎 Allegati
               </label>
-              <input
-                type="file"
-                multiple
-                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  setAttachments(files.slice(0, 10));
-                }}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 text-sm"
-              />
+
+              {/* Allegati esistenti */}
+              {expense?.attachments && expense.attachments.length > 0 && (
+                <div className="mb-3 space-y-1">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Allegati caricati:</p>
+                  {expense.attachments.map((attachment) => (
+                    <div key={attachment.id} className="flex items-center justify-between text-xs bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-3 py-2 rounded-lg">
+                      <span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+                        {attachment.originalName} ({(attachment.size / 1024).toFixed(1)} KB)
+                      </span>
+                      <div className="flex gap-2 ml-2">
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadAttachment(attachment.id, attachment.originalName)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-1"
+                          title="Scarica"
+                        >
+                          <ArrowDownTrayIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteAttachment(attachment.id)}
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1"
+                          title="Elimina"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Input per nuovi allegati */}
+              <div>
+                <label className="text-xs text-slate-600 dark:text-slate-400 mb-1 block">
+                  Aggiungi nuovi allegati (max 10 file):
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setAttachments(files.slice(0, 10));
+                  }}
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 text-sm"
+                />
+              </div>
+
+              {/* Nuovi allegati selezionati */}
               {attachments.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {attachments.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between text-xs bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                    <div key={`new-${index}`} className="flex items-center justify-between text-xs bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
                       <span className="text-slate-700 dark:text-slate-300 truncate">
                         {file.name} ({(file.size / 1024).toFixed(1)} KB)
                       </span>

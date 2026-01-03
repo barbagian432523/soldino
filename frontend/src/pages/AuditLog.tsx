@@ -95,7 +95,7 @@ export default function AuditLog() {
       if (filter.endDate) params.append('endDate', filter.endDate);
 
       const response = await fetch(
-        `http://localhost:3000/api/audit-logs?${params}`,
+        `/api/audit-logs?${params}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,

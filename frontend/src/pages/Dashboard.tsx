@@ -179,13 +179,13 @@ export default function Dashboard() {
                   damping: 20
                 }}
                 whileHover={{ scale: 1.03, x: 4 }}
-                className="glass-button rounded-2xl p-4 perspective-card"
-                style={{ borderLeftColor: account.color, borderLeftWidth: 4 }}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-4 soft-shadow-lg border-l-4"
+                style={{ borderLeftColor: account.color }}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{account.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="font-semibold text-slate-900 dark:text-white">{account.name}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                       {account.type}
                     </p>
                   </div>

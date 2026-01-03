@@ -47,7 +47,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/stats/dashboard', {
+      const response = await fetch('/api/stats/dashboard', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
