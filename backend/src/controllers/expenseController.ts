@@ -160,6 +160,11 @@ export class ExpenseController {
           userId: req.userId!,
           accountId: data.accountId,
           categoryId: data.categoryId,
+          // Recurring fields
+          isRecurring: (data as any).isRecurring || false,
+          recurringFrequency: (data as any).recurringFrequency,
+          recurringStartDate: (data as any).recurringStartDate ? new Date((data as any).recurringStartDate) : null,
+          recurringEndDate: (data as any).recurringEndDate ? new Date((data as any).recurringEndDate) : null,
         },
         include: {
           category: true,

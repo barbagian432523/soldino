@@ -17,6 +17,7 @@ import Calendar from '@/pages/Calendar';
 import Loans from '@/pages/Loans';
 import Statistics from '@/pages/Statistics';
 import Settings from '@/pages/Settings';
+import AuditLog from '@/pages/AuditLog';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -115,6 +116,15 @@ function App() {
           element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/audit-log"
+          element={
+            <PrivateRoute>
+              <AuditLog />
             </PrivateRoute>
           }
         />

@@ -24,7 +24,14 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
     date: new Date().toISOString().split('T')[0],
     accountId: '',
     categoryId: '',
+    // Recurring fields
+    isRecurring: false,
+    recurringFrequency: '',
+    recurringStartDate: '',
+    recurringEndDate: '',
   });
+
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -125,11 +132,33 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
         amount: parseFloat(formData.amount) || 0,
       };
 
+      let expenseId: string;
+
       if (expense) {
         await expensesAPI.update(expense.id, dataToSend);
+        expenseId = expense.id;
       } else {
-        await expensesAPI.create(dataToSend);
+        const response = await expensesAPI.create(dataToSend);
+        expenseId = response.data.expense.id;
       }
+
+      // Upload attachments se presenti
+      if (attachments.length > 0) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('expenseId', expenseId);
+        attachments.forEach((file) => {
+          formDataUpload.append('files', file);
+        });
+
+        await fetch('http://localhost:3000/api/attachments/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: formDataUpload,
+        });
+      }
+
       onSuccess?.();
       onClose();
     } catch (err: any) {
@@ -373,6 +402,104 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Aggiungi dettagli..."
               />
+            </div>
+
+            {/* Ricorrenza */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  type="checkbox"
+                  id="isRecurring"
+                  checked={formData.isRecurring}
+                  onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor="isRecurring" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  🔄 Spesa ricorrente
+                </label>
+              </div>
+
+              {formData.isRecurring && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-6">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Frequenza
+                    </label>
+                    <select
+                      value={formData.recurringFrequency}
+                      onChange={(e) => setFormData({ ...formData, recurringFrequency: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    >
+                      <option value="">Seleziona...</option>
+                      <option value="DAILY">Giornaliera</option>
+                      <option value="WEEKLY">Settimanale</option>
+                      <option value="BIWEEKLY">Quindicinale</option>
+                      <option value="MONTHLY">Mensile</option>
+                      <option value="QUARTERLY">Trimestrale</option>
+                      <option value="YEARLY">Annuale</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Inizio
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.recurringStartDate}
+                      onChange={(e) => setFormData({ ...formData, recurringStartDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Fine (opzionale)
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.recurringEndDate}
+                      onChange={(e) => setFormData({ ...formData, recurringEndDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Allegati */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                📎 Allegati (max 10 file)
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  setAttachments(files.slice(0, 10));
+                }}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 text-sm"
+              />
+              {attachments.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {attachments.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between text-xs bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                      <span className="text-slate-700 dark:text-slate-300 truncate">
+                        {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
+                        className="text-red-600 hover:text-red-700 ml-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Buttons */}

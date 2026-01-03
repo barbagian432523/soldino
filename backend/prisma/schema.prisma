@@ -26,6 +26,7 @@ model User {
   categories    Category[]
   contacts      Contact[]
   loans         Loan[]
+  auditLogs     AuditLog[]
 
   @@map("users")
 }
@@ -97,6 +98,16 @@ enum ExpenseStatus {
   CANCELLED     // Annullata
 }
 
+// Frequenza ricorrenza
+enum RecurringFrequency {
+  DAILY         // Giornaliera
+  WEEKLY        // Settimanale
+  BIWEEKLY      // Quindicinale
+  MONTHLY       // Mensile
+  QUARTERLY     // Trimestrale
+  YEARLY        // Annuale
+}
+
 // Modello Spesa
 model Expense {
   id            String         @id @default(uuid())
@@ -116,6 +127,15 @@ model Expense {
   location      String?
   latitude      Decimal?       @db.Decimal(10, 8)
   longitude     Decimal?       @db.Decimal(11, 8)
+
+  // Ricorrenza
+  isRecurring   Boolean        @default(false)
+  recurringFrequency RecurringFrequency?
+  recurringStartDate DateTime?
+  recurringEndDate   DateTime?
+  recurringLastGenerated DateTime? // Ultima data generazione automatica
+  parentRecurringId  String?    // ID della spesa ricorrente originale
+  isRecurringGenerated Boolean  @default(false) // True se generata automaticamente
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -158,6 +178,7 @@ model Attachment {
   type          AttachmentType
   path          String
   thumbnail     String?        // Path thumbnail per immagini
+  hash          String         // SHA-256 hash del file
 
   // Metadata OCR
   ocrText       String?        @db.Text
@@ -172,6 +193,7 @@ model Attachment {
 
   @@map("attachments")
   @@index([expenseId])
+  @@index([hash])
 }
 
 // Modello Contatto (Rubrica semplificata)
@@ -232,4 +254,40 @@ model Loan {
   @@index([contactId])
   @@index([status])
   @@index([type])
+}
+
+// Tipo di azione nel log
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  UPLOAD
+  DOWNLOAD
+  EXPORT
+  IMPORT
+}
+
+// Modello AuditLog (Registro Eventi)
+model AuditLog {
+  id            String      @id @default(uuid())
+  action        AuditAction
+  entity        String      // Nome entità (Expense, Account, Category, etc.)
+  entityId      String?     // ID dell'entità modificata
+  description   String      // Descrizione operazione
+  metadata      Json?       // Dati aggiuntivi
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+
+  // Relazioni
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([createdAt])
 }

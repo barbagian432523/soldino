@@ -8,6 +8,9 @@ import { ContactController } from '../controllers/contactController';
 import { LoanController } from '../controllers/loanController';
 import { authenticate } from '../middleware/auth';
 import { upload } from '../middleware/upload';
+import attachmentRoutes from './attachments';
+import auditLogRoutes from './auditLogs';
+import statsRoutes from './stats';
 
 const router = Router();
 
@@ -69,5 +72,14 @@ router.put('/loans/:id', authenticate, LoanController.update);
 router.put('/loans/:id/mark-paid', authenticate, LoanController.markAsPaid);
 router.post('/loans/:id/payment', authenticate, LoanController.recordPayment);
 router.delete('/loans/:id', authenticate, LoanController.delete);
+
+// ========== ATTACHMENT ROUTES (NEW) ==========
+router.use('/attachments', attachmentRoutes);
+
+// ========== AUDIT LOG ROUTES (NEW) ==========
+router.use('/audit-logs', auditLogRoutes);
+
+// ========== STATS ROUTES (NEW) ==========
+router.use('/stats', statsRoutes);
 
 export default router;
