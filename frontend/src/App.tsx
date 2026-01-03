@@ -13,6 +13,7 @@ import Dashboard from '@/pages/Dashboard';
 import Expenses from '@/pages/Expenses';
 import Accounts from '@/pages/Accounts';
 import Categories from '@/pages/Categories';
+import Calendar from '@/pages/Calendar';
 import Statistics from '@/pages/Statistics';
 import Settings from '@/pages/Settings';
 
@@ -77,6 +78,15 @@ function App() {
           element={
             <PrivateRoute>
               <Categories />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/calendar"
+          element={
+            <PrivateRoute>
+              <Calendar />
             </PrivateRoute>
           }
         />

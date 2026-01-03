@@ -13,10 +13,10 @@ interface Props {
 }
 
 export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Props) {
-  const { accounts, categories, fetchAccounts, fetchCategories } = useDataStore();
+  const { accounts, categories, expenses, fetchAccounts, fetchCategories } = useDataStore();
 
-  const [formData, setFormData] = useState<CreateExpenseDTO>({
-    amount: 0,
+  const [formData, setFormData] = useState<any>({
+    amount: '',
     type: 'EXPENSE',
     description: '',
     notes: '',
@@ -27,6 +27,12 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [categorySearch, setCategorySearch] = useState('');
+  const [accountSearch, setAccountSearch] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [showDescriptionDropdown, setShowDescriptionDropdown] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -44,16 +50,52 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
         accountId: expense.account.id,
         categoryId: expense.category.id,
       });
+      // Set search values for editing
+      const category = categories.find(c => c.id === expense.category.id);
+      const account = accounts.find(a => a.id === expense.account.id);
+      if (category) setCategorySearch(`${category.icon} ${category.name}`);
+      if (account) setAccountSearch(`${account.name} (${account.type})`);
     } else {
       // Default: primo account disponibile
       if (accounts.length > 0 && !formData.accountId) {
         setFormData(prev => ({ ...prev, accountId: accounts[0].id }));
+        setAccountSearch(`${accounts[0].name} (${accounts[0].type})`);
       }
       if (categories.length > 0 && !formData.categoryId) {
         setFormData(prev => ({ ...prev, categoryId: categories[0].id }));
+        setCategorySearch(`${categories[0].icon} ${categories[0].name}`);
       }
     }
   }, [expense, accounts, categories]);
+
+  // Filter categories based on search
+  const filteredCategories = categories.filter(cat =>
+    `${cat.icon} ${cat.name}`.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  // Filter accounts based on search
+  const filteredAccounts = accounts.filter(acc =>
+    `${acc.name} ${acc.type}`.toLowerCase().includes(accountSearch.toLowerCase())
+  );
+
+  // Get unique descriptions and filter based on current input
+  const uniqueDescriptions = Array.from(new Set(expenses.map(e => e.description)));
+  const filteredDescriptions = uniqueDescriptions.filter(desc =>
+    desc.toLowerCase().includes(formData.description.toLowerCase()) &&
+    desc.toLowerCase() !== formData.description.toLowerCase()
+  ).slice(0, 5); // Limit to 5 suggestions
+
+  const handleCategorySelect = (category: any) => {
+    setFormData({ ...formData, categoryId: category.id });
+    setCategorySearch(`${category.icon} ${category.name}`);
+    setShowCategoryDropdown(false);
+  };
+
+  const handleAccountSelect = (account: any) => {
+    setFormData({ ...formData, accountId: account.id });
+    setAccountSearch(`${account.name} (${account.type})`);
+    setShowAccountDropdown(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +103,15 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
     setIsLoading(true);
 
     try {
+      const dataToSend = {
+        ...formData,
+        amount: parseFloat(formData.amount) || 0,
+      };
+
       if (expense) {
-        await expensesAPI.update(expense.id, formData);
+        await expensesAPI.update(expense.id, dataToSend);
       } else {
-        await expensesAPI.create(formData);
+        await expensesAPI.create(dataToSend);
       }
       onSuccess?.();
       onClose();
@@ -155,14 +202,14 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 step="0.01"
                 required
                 value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
 
             {/* Descrizione */}
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Descrizione *
               </label>
@@ -170,50 +217,102 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 type="text"
                 required
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, description: e.target.value });
+                  setShowDescriptionDropdown(e.target.value.length > 0);
+                }}
+                onFocus={() => setShowDescriptionDropdown(formData.description.length > 0)}
+                onBlur={() => setTimeout(() => setShowDescriptionDropdown(false), 200)}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Es: Spesa al supermercato"
               />
+              {showDescriptionDropdown && filteredDescriptions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                  {filteredDescriptions.map((desc, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, description: desc });
+                        setShowDescriptionDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors text-slate-900 dark:text-white"
+                    >
+                      {desc}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Account */}
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Conto *
               </label>
-              <select
+              <input
+                type="text"
                 required
-                value={formData.accountId}
-                onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+                value={accountSearch}
+                onChange={(e) => {
+                  setAccountSearch(e.target.value);
+                  setShowAccountDropdown(true);
+                }}
+                onFocus={() => setShowAccountDropdown(true)}
+                onBlur={() => setTimeout(() => setShowAccountDropdown(false), 200)}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Seleziona conto</option>
-                {accounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.name} ({acc.type})
-                  </option>
-                ))}
-              </select>
+                placeholder="Cerca o seleziona conto..."
+              />
+              {showAccountDropdown && filteredAccounts.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  {filteredAccounts.map((acc) => (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      onClick={() => handleAccountSelect(acc)}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      <div className="font-medium text-slate-900 dark:text-white">{acc.name}</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">{acc.type}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Categoria */}
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Categoria *
               </label>
-              <select
+              <input
+                type="text"
                 required
-                value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                value={categorySearch}
+                onChange={(e) => {
+                  setCategorySearch(e.target.value);
+                  setShowCategoryDropdown(true);
+                }}
+                onFocus={() => setShowCategoryDropdown(true)}
+                onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Seleziona categoria</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.icon} {cat.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Cerca o seleziona categoria..."
+              />
+              {showCategoryDropdown && filteredCategories.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  {filteredCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => handleCategorySelect(cat)}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center gap-3"
+                    >
+                      <span className="text-2xl">{cat.icon}</span>
+                      <span className="font-medium text-slate-900 dark:text-white">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Data */}
