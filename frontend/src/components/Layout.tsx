@@ -74,7 +74,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-slate-700 p-1">
                   <img
                     src="/logoLMM.PNG"
                     alt="Lighthouse Money Manager"
@@ -83,35 +83,35 @@ export default function Layout({ children }: LayoutProps) {
                       // Fallback to emoji if image not found
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.parentElement!.innerHTML = '🏛️';
-                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-xl');
+                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-2xl');
                     }}
                   />
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                <h1 className="hidden sm:block text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                   Lighthouse Money Manager
                 </h1>
               </div>
 
               {/* Stats */}
               {stats && (
-                <div className="hidden lg:flex items-center gap-4 px-4 py-2 bg-slate-100 dark:bg-slate-700/50 rounded-xl">
+                <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-xl border border-primary-100 dark:border-slate-600 shadow-sm">
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Spese</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💰 Spese</p>
+                    <p className="text-sm font-bold text-primary-700 dark:text-primary-300">
                       {stats.totalExpenses}
                     </p>
                   </div>
-                  <div className="w-px h-8 bg-slate-300 dark:bg-slate-600" />
+                  <div className="w-px h-8 bg-primary-200 dark:bg-slate-500" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Operazioni</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">📊 Operazioni</p>
+                    <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
                       {stats.totalOperations}
                     </p>
                   </div>
-                  <div className="w-px h-8 bg-slate-300 dark:bg-slate-600" />
+                  <div className="w-px h-8 bg-primary-200 dark:bg-slate-500" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">DB</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💾 Database</p>
+                    <p className="text-sm font-bold text-green-700 dark:text-green-300">
                       {stats.dbSizeFormatted}
                     </p>
                   </div>
