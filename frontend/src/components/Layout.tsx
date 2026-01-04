@@ -52,17 +52,37 @@ export default function Layout({ children }: LayoutProps) {
 
   const fetchStats = async () => {
     try {
+      console.log('🔍 Fetching stats from /api/stats/dashboard...');
       const response = await fetch('/api/stats/dashboard', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      console.log('📊 Stats response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Stats data:', data);
         setStats(data);
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Stats API error:', response.status, errorText);
+        // Set default values if API fails
+        setStats({
+          totalExpenses: 0,
+          totalOperations: 0,
+          dbSize: 0,
+          dbSizeFormatted: '0 B',
+        });
       }
     } catch (error) {
-      console.error('Errore recupero statistiche:', error);
+      console.error('💥 Errore recupero statistiche:', error);
+      // Set default values on error
+      setStats({
+        totalExpenses: 0,
+        totalOperations: 0,
+        dbSize: 0,
+        dbSizeFormatted: '0 B',
+      });
     }
   };
 
