@@ -79,13 +79,13 @@ router.get('/system', authenticate, async (req, res) => {
     // Ottieni dimensione database (solo su PostgreSQL)
     let dbSize = 0;
     try {
-      const dbName = process.env.DATABASE_URL?.split('/').pop()?.split('?')[0] || 'soldino';
-      const result = await prisma.$queryRawUnsafe<any[]>(
-        `SELECT pg_database_size('${dbName}') as size`
-      );
-      dbSize = result[0]?.size || 0;
+      const result = await prisma.$queryRaw<any[]>`
+        SELECT pg_database_size(current_database()) as size
+      `;
+      dbSize = Number(result[0]?.size) || 0;
     } catch (error) {
       console.error('Errore recupero dimensione DB:', error);
+      dbSize = 0;
     }
 
     // Formato human-readable per le dimensioni
@@ -150,11 +150,10 @@ router.get('/dashboard', authenticate, async (req, res) => {
       // Info DB
       (async () => {
         try {
-          const dbName = process.env.DATABASE_URL?.split('/').pop()?.split('?')[0] || 'soldino';
-          const result = await prisma.$queryRawUnsafe<any[]>(
-            `SELECT pg_database_size('${dbName}') as size`
-          );
-          return result[0]?.size || 0;
+          const result = await prisma.$queryRaw<any[]>`
+            SELECT pg_database_size(current_database()) as size
+          `;
+          return Number(result[0]?.size) || 0;
         } catch (err) {
           console.error('Errore recupero dimensione DB:', err);
           return 0;
