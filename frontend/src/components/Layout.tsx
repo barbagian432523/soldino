@@ -17,6 +17,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
+import MobileBottomNav from './MobileBottomNav';
+import ExpenseModal from './ExpenseModal';
+import { useDataStore } from '@/store/dataStore';
 
 interface LayoutProps {
   children: ReactNode;
@@ -39,7 +42,9 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { isDark, toggle: toggleDark } = useThemeStore();
+  const { fetchExpenses, fetchStats: fetchStoreStats, fetchAccounts } = useDataStore();
   const [stats, setStats] = useState<any>(null);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -95,9 +100,9 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
               </div>
 
-              {/* Stats - Always visible */}
+              {/* Stats - Hidden on very small screens */}
               {stats && (
-                <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-2xl shadow-lg border-2 border-blue-400 dark:border-indigo-500">
+                <div className="hidden sm:flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-2xl shadow-lg border-2 border-blue-400 dark:border-indigo-500">
                   <div className="text-center">
                     <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Spese</p>
                     <p className="text-sm md:text-base font-bold text-white">
@@ -155,10 +160,10 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 lg:pb-8">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Navigation */}
-          <nav className="lg:w-64 flex-shrink-0">
+          {/* Sidebar Navigation - Hidden on mobile */}
+          <nav className="hidden lg:block lg:w-64 flex-shrink-0">
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -197,6 +202,22 @@ export default function Layout({ children }: LayoutProps) {
           </main>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav onAddExpense={() => setShowExpenseModal(true)} />
+
+      {/* Expense Modal */}
+      <ExpenseModal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onSuccess={() => {
+          setShowExpenseModal(false);
+          fetchExpenses({ limit: 10 });
+          fetchStoreStats();
+          fetchAccounts();
+          fetchStats();
+        }}
+      />
     </div>
   );
 }
