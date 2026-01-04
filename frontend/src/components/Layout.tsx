@@ -71,10 +71,10 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-24">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-slate-700 p-1">
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-slate-700 p-1.5">
                   <img
                     src="/logoLMM.PNG"
                     alt="Lighthouse Money Manager"
@@ -83,35 +83,38 @@ export default function Layout({ children }: LayoutProps) {
                       // Fallback to emoji if image not found
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.parentElement!.innerHTML = '🏛️';
-                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-2xl');
+                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-3xl');
                     }}
                   />
                 </div>
-                <h1 className="hidden sm:block text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                  Lighthouse Money Manager
-                </h1>
+                <div className="hidden sm:block">
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent leading-tight">
+                    Lighthouse Money Manager
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Gestione Finanze Personali</p>
+                </div>
               </div>
 
-              {/* Stats */}
+              {/* Stats - Always visible */}
               {stats && (
-                <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-xl border border-primary-100 dark:border-slate-600 shadow-sm">
+                <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-xl border border-primary-100 dark:border-slate-600 shadow-sm">
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💰 Spese</p>
-                    <p className="text-sm font-bold text-primary-700 dark:text-primary-300">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💰</p>
+                    <p className="text-xs md:text-sm font-bold text-primary-700 dark:text-primary-300">
                       {stats.totalExpenses}
                     </p>
                   </div>
-                  <div className="w-px h-8 bg-primary-200 dark:bg-slate-500" />
+                  <div className="w-px h-6 md:h-8 bg-primary-200 dark:bg-slate-500" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">📊 Operazioni</p>
-                    <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">📊</p>
+                    <p className="text-xs md:text-sm font-bold text-blue-700 dark:text-blue-300">
                       {stats.totalOperations}
                     </p>
                   </div>
-                  <div className="w-px h-8 bg-primary-200 dark:bg-slate-500" />
+                  <div className="w-px h-6 md:h-8 bg-primary-200 dark:bg-slate-500" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💾 Database</p>
-                    <p className="text-sm font-bold text-green-700 dark:text-green-300">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💾</p>
+                    <p className="text-xs md:text-sm font-bold text-green-700 dark:text-green-300">
                       {stats.dbSizeFormatted}
                     </p>
                   </div>
