@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import { useDataStore } from '@/store/dataStore';
 import { formatCurrency, getAccountTypeLabel } from '@/utils/format';
 import { accountsAPI } from '@/services/api';
 import Layout from '@/components/Layout';
 import AccountModal from '@/components/AccountModal';
+import TransferModal from '@/components/TransferModal';
 import type { Account } from '@/types';
 
 const accountTypeIcons: Record<string, string> = {
@@ -20,6 +21,7 @@ const accountTypeIcons: Record<string, string> = {
 export default function Accounts() {
   const { accounts, fetchAccounts, isLoadingAccounts } = useDataStore();
   const [showModal, setShowModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | undefined>();
 
   useEffect(() => {
@@ -66,16 +68,29 @@ export default function Accounts() {
             </p>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            onClick={handleNewAccount}
-            className="flex items-center gap-2 px-4 py-2 liquid-gradient text-white rounded-2xl soft-shadow-lg hover:soft-shadow"
-          >
-            <PlusIcon className="w-5 h-5" />
-            <span>Nuovo Conto</span>
-          </motion.button>
+          <div className="flex gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onClick={() => setShowTransferModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl soft-shadow-lg hover:soft-shadow"
+            >
+              <ArrowsRightLeftIcon className="w-5 h-5" />
+              <span>Giroconto</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onClick={handleNewAccount}
+              className="flex items-center gap-2 px-4 py-2 liquid-gradient text-white rounded-2xl soft-shadow-lg hover:soft-shadow"
+            >
+              <PlusIcon className="w-5 h-5" />
+              <span>Nuovo Conto</span>
+            </motion.button>
+          </div>
         </div>
 
         {/* Saldo totale */}
@@ -225,6 +240,16 @@ export default function Accounts() {
         }}
         account={selectedAccount}
         onSuccess={fetchAccounts}
+      />
+
+      {/* Transfer Modal */}
+      <TransferModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        onSuccess={() => {
+          fetchAccounts();
+          setShowTransferModal(false);
+        }}
       />
     </Layout>
   );
