@@ -131,7 +131,7 @@ export default function Accounts() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-card dark:glass-card-dark rounded-3xl shadow-lg p-12 text-center"
+            className="bg-white dark:bg-slate-800 rounded-3xl soft-shadow-lg p-12 text-center border-2 border-slate-200 dark:border-slate-700"
           >
             <div className="text-6xl mb-4">💳</div>
             <p className="text-slate-600 dark:text-slate-400 mb-4 text-lg font-medium">
@@ -163,7 +163,7 @@ export default function Accounts() {
                   damping: 20
                 }}
                 whileHover={{ y: -8, scale: 1.02 }}
-                className="glass-card dark:glass-card-dark rounded-3xl soft-shadow-lg overflow-hidden group perspective-card"
+                className="bg-white dark:bg-slate-800 rounded-3xl soft-shadow-lg overflow-hidden group border-2 border-slate-200 dark:border-slate-700"
               >
                 {/* Header colorato */}
                 <div
@@ -180,7 +180,7 @@ export default function Accounts() {
                       <div className="text-4xl drop-shadow-lg">
                         {account.icon || accountTypeIcons[account.type] || '💼'}
                       </div>
-                      <span className="px-3 py-1 glass-button text-xs font-medium">
+                      <span className="px-3 py-1 bg-white/30 backdrop-blur-sm text-xs font-semibold rounded-xl shadow-md border border-white/40">
                         {getAccountTypeLabel(account.type)}
                       </span>
                     </div>

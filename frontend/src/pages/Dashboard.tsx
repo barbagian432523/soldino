@@ -154,7 +154,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, type: "spring", stiffness: 80 }}
-          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg liquid-morph"
+          className="bg-white dark:bg-slate-800 rounded-3xl p-6 soft-shadow-lg border border-slate-200 dark:border-slate-700"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">I tuoi conti</h3>
@@ -203,7 +203,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 80 }}
-          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg liquid-morph"
+          className="bg-white dark:bg-slate-800 rounded-3xl p-6 soft-shadow-lg border border-slate-200 dark:border-slate-700"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">Ultime spese</h3>
@@ -236,22 +236,23 @@ export default function Dashboard() {
                     stiffness: 120
                   }}
                   whileHover={{ scale: 1.02, x: 8 }}
-                  className="glass-button flex items-center justify-between p-4 rounded-2xl soft-shadow perspective-card"
+                  className="bg-white dark:bg-slate-800 flex items-center justify-between p-4 rounded-2xl soft-shadow-lg border-l-4 border-primary-500"
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-md"
                       style={{
-                        backgroundColor: `${expense.category.color}20`,
+                        backgroundColor: expense.category.color || '#6366f1',
+                        color: 'white',
                       }}
                     >
                       {expense.category.icon || '📄'}
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className="font-semibold text-slate-900 dark:text-white">
                         {expense.description}
                       </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                         {expense.category.name} •{' '}
                         {formatDateShort(expense.date)}
                       </p>
@@ -270,7 +271,7 @@ export default function Dashboard() {
                       {formatCurrency(Number(expense.amount))}
                     </p>
                     {expense.isAiGenerated && (
-                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 font-medium">
                         ✨ AI {expense.aiConfidence}%
                       </p>
                     )}

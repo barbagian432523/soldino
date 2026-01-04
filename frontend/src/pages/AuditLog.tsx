@@ -147,7 +147,7 @@ export default function AuditLog() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="glass-card dark:glass-card-dark rounded-3xl p-6 soft-shadow-lg"
+          className="bg-white dark:bg-slate-800 rounded-3xl p-6 soft-shadow-lg border-2 border-slate-200 dark:border-slate-700"
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -209,7 +209,7 @@ export default function AuditLog() {
       )}
 
       {/* Log List */}
-      <div className="glass-card dark:glass-card-dark rounded-3xl soft-shadow-lg">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl soft-shadow-lg border-2 border-slate-200 dark:border-slate-700">
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -236,7 +236,7 @@ export default function AuditLog() {
                   key={log.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="p-6 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}

@@ -97,24 +97,24 @@ export default function Layout({ children }: LayoutProps) {
 
               {/* Stats - Always visible */}
               {stats && (
-                <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-xl border border-primary-100 dark:border-slate-600 shadow-sm">
+                <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-2xl shadow-lg border-2 border-blue-400 dark:border-indigo-500">
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💰</p>
-                    <p className="text-xs md:text-sm font-bold text-primary-700 dark:text-primary-300">
+                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Spese</p>
+                    <p className="text-sm md:text-base font-bold text-white">
                       {stats.totalExpenses}
                     </p>
                   </div>
-                  <div className="w-px h-6 md:h-8 bg-primary-200 dark:bg-slate-500" />
+                  <div className="w-px h-8 md:h-10 bg-white/30" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">📊</p>
-                    <p className="text-xs md:text-sm font-bold text-blue-700 dark:text-blue-300">
+                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Ops</p>
+                    <p className="text-sm md:text-base font-bold text-white">
                       {stats.totalOperations}
                     </p>
                   </div>
-                  <div className="w-px h-6 md:h-8 bg-primary-200 dark:bg-slate-500" />
+                  <div className="w-px h-8 md:h-10 bg-white/30" />
                   <div className="text-center">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">💾</p>
-                    <p className="text-xs md:text-sm font-bold text-green-700 dark:text-green-300">
+                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">DB</p>
+                    <p className="text-sm md:text-base font-bold text-white">
                       {stats.dbSizeFormatted}
                     </p>
                   </div>
