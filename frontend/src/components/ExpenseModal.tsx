@@ -65,17 +65,8 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
       const account = accounts.find(a => a.id === expense.account.id);
       if (category) setCategorySearch(`${category.icon} ${category.name}`);
       if (account) setAccountSearch(`${account.name} (${account.type})`);
-    } else {
-      // Default: primo account disponibile
-      if (accounts.length > 0 && !formData.accountId) {
-        setFormData(prev => ({ ...prev, accountId: accounts[0].id }));
-        setAccountSearch(`${accounts[0].name} (${accounts[0].type})`);
-      }
-      if (categories.length > 0 && !formData.categoryId) {
-        setFormData(prev => ({ ...prev, categoryId: categories[0].id }));
-        setCategorySearch(`${categories[0].icon} ${categories[0].name}`);
-      }
     }
+    // else: lascia vuoti conto e categoria per nuovo inserimento
   }, [expense, accounts, categories]);
 
   // Filter categories based on search
@@ -315,6 +306,11 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 }}
                 onFocus={() => setShowDescriptionDropdown(formData.description.length > 0)}
                 onBlur={() => setTimeout(() => setShowDescriptionDropdown(false), 200)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab') {
+                    setShowDescriptionDropdown(false);
+                  }
+                }}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Es: Spesa al supermercato"
               />
@@ -352,6 +348,11 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 }}
                 onFocus={() => setShowAccountDropdown(true)}
                 onBlur={() => setTimeout(() => setShowAccountDropdown(false), 200)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab') {
+                    setShowAccountDropdown(false);
+                  }
+                }}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Cerca o seleziona conto..."
               />
@@ -387,6 +388,11 @@ export default function ExpenseModal({ isOpen, onClose, expense, onSuccess }: Pr
                 }}
                 onFocus={() => setShowCategoryDropdown(true)}
                 onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab') {
+                    setShowCategoryDropdown(false);
+                  }
+                }}
                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Cerca o seleziona categoria..."
               />

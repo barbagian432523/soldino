@@ -100,26 +100,26 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
               </div>
 
-              {/* Stats - Hidden on very small screens */}
+              {/* Stats - Always visible, compact on mobile */}
               {stats && (
-                <div className="hidden sm:flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-2xl shadow-lg border-2 border-blue-400 dark:border-indigo-500">
+                <div className="flex items-center gap-1 sm:gap-2 md:gap-4 px-2 sm:px-4 md:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-400 dark:border-indigo-500">
                   <div className="text-center">
-                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Spese</p>
-                    <p className="text-sm md:text-base font-bold text-white">
+                    <p className="text-[9px] sm:text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Spese</p>
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-white">
                       {stats.totalExpenses}
                     </p>
                   </div>
-                  <div className="w-px h-8 md:h-10 bg-white/30" />
+                  <div className="w-px h-6 sm:h-8 md:h-10 bg-white/30" />
                   <div className="text-center">
-                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Ops</p>
-                    <p className="text-sm md:text-base font-bold text-white">
+                    <p className="text-[9px] sm:text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">Ops</p>
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-white">
                       {stats.totalOperations}
                     </p>
                   </div>
-                  <div className="w-px h-8 md:h-10 bg-white/30" />
+                  <div className="w-px h-6 sm:h-8 md:h-10 bg-white/30" />
                   <div className="text-center">
-                    <p className="text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">DB</p>
-                    <p className="text-sm md:text-base font-bold text-white">
+                    <p className="text-[9px] sm:text-[10px] md:text-xs text-white/90 font-semibold mb-0.5">DB</p>
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-white">
                       {stats.dbSizeFormatted}
                     </p>
                   </div>
