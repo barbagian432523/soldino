@@ -96,10 +96,10 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
+          <div className="flex justify-between items-center h-32">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-slate-700 p-1.5">
+                <div className="w-28 h-28 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-slate-700 p-2">
                   <img
                     src="/logoLMM.PNG"
                     alt="Lighthouse Money Manager"
@@ -108,7 +108,7 @@ export default function Layout({ children }: LayoutProps) {
                       // Fallback to emoji if image not found
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.parentElement!.innerHTML = '🏛️';
-                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-3xl');
+                      e.currentTarget.parentElement!.classList.add('bg-gradient-to-br', 'from-primary-500', 'to-primary-700', 'text-white', 'font-bold', 'text-4xl');
                     }}
                   />
                 </div>
