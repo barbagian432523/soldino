@@ -124,6 +124,12 @@ export class ExpenseController {
     try {
       const data: CreateExpenseDTO = req.body;
 
+      // Validazione amount > 0
+      if (data.amount <= 0) {
+        res.status(400).json({ error: 'L\'importo deve essere maggiore di zero' });
+        return;
+      }
+
       // Verifica che account e category appartengano all'utente
       const [account, category] = await Promise.all([
         prisma.account.findFirst({
@@ -147,41 +153,48 @@ export class ExpenseController {
         return;
       }
 
-      // Crea spesa
-      const expense = await prisma.expense.create({
-        data: {
-          amount: data.amount,
-          type: data.type,
-          description: data.description,
-          notes: data.notes,
-          date: data.date ? new Date(data.date) : new Date(),
-          location: data.location,
-          latitude: data.latitude,
-          longitude: data.longitude,
-          userId: req.userId!,
-          accountId: data.accountId,
-          categoryId: data.categoryId,
-          // Recurring fields
-          isRecurring: (data as any).isRecurring || false,
-          recurringFrequency: (data as any).recurringFrequency || null,
-          recurringStartDate: (data as any).recurringStartDate ? new Date((data as any).recurringStartDate) : null,
-          recurringEndDate: (data as any).recurringEndDate ? new Date((data as any).recurringEndDate) : null,
-        },
-        include: {
-          category: true,
-          account: true,
-        },
-      });
-
-      // Aggiorna balance account
+      // Calcola il cambio di balance
       const balanceChange = data.type === 'EXPENSE' ? -data.amount : data.amount;
-      await prisma.account.update({
-        where: { id: data.accountId },
-        data: {
-          balance: {
-            increment: balanceChange,
+
+      // Operazione atomica: crea spesa e aggiorna balance in una transazione
+      const expense = await prisma.$transaction(async (tx) => {
+        // Crea spesa
+        const newExpense = await tx.expense.create({
+          data: {
+            amount: data.amount,
+            type: data.type,
+            description: data.description,
+            notes: data.notes,
+            date: data.date ? new Date(data.date) : new Date(),
+            location: data.location,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            userId: req.userId!,
+            accountId: data.accountId,
+            categoryId: data.categoryId,
+            // Recurring fields
+            isRecurring: (data as any).isRecurring || false,
+            recurringFrequency: (data as any).recurringFrequency || null,
+            recurringStartDate: (data as any).recurringStartDate ? new Date((data as any).recurringStartDate) : null,
+            recurringEndDate: (data as any).recurringEndDate ? new Date((data as any).recurringEndDate) : null,
           },
-        },
+          include: {
+            category: true,
+            account: true,
+          },
+        });
+
+        // Aggiorna balance account
+        await tx.account.update({
+          where: { id: data.accountId },
+          data: {
+            balance: {
+              increment: balanceChange,
+            },
+          },
+        });
+
+        return newExpense;
       });
 
       // Audit log
@@ -213,6 +226,12 @@ export class ExpenseController {
       const { id } = req.params;
       const data: UpdateExpenseDTO = req.body;
 
+      // Validazione amount se fornito
+      if (data.amount !== undefined && data.amount <= 0) {
+        res.status(400).json({ error: 'L\'importo deve essere maggiore di zero' });
+        return;
+      }
+
       // Verifica proprietà
       const existing = await prisma.expense.findFirst({
         where: { id, userId: req.userId },
@@ -223,38 +242,68 @@ export class ExpenseController {
         return;
       }
 
-      // Se cambiano amount o type, aggiorna balance
-      if (data.amount !== undefined || data.type !== undefined) {
+      // Operazione atomica: aggiorna spesa e balance in una transazione
+      const expense = await prisma.$transaction(async (tx) => {
+        // Calcola cambi di balance
         const oldAmount = Number(existing.amount);
         const newAmount = data.amount !== undefined ? data.amount : oldAmount;
         const oldType = existing.type;
         const newType = data.type || oldType;
+        const oldAccountId = existing.accountId;
+        const newAccountId = data.accountId || oldAccountId;
 
         const oldChange = oldType === 'EXPENSE' ? -oldAmount : oldAmount;
         const newChange = newType === 'EXPENSE' ? -newAmount : newAmount;
-        const balanceDiff = newChange - oldChange;
 
-        await prisma.account.update({
-          where: { id: existing.accountId },
-          data: {
-            balance: {
-              increment: balanceDiff,
+        // Se cambia l'account, sposta il balance
+        if (newAccountId !== oldAccountId) {
+          // Ripristina balance sul vecchio account
+          await tx.account.update({
+            where: { id: oldAccountId },
+            data: {
+              balance: {
+                increment: -oldChange,
+              },
             },
+          });
+
+          // Applica nuovo balance sul nuovo account
+          await tx.account.update({
+            where: { id: newAccountId },
+            data: {
+              balance: {
+                increment: newChange,
+              },
+            },
+          });
+        } else {
+          // Stesso account: applica solo la differenza
+          const balanceDiff = newChange - oldChange;
+          if (balanceDiff !== 0) {
+            await tx.account.update({
+              where: { id: oldAccountId },
+              data: {
+                balance: {
+                  increment: balanceDiff,
+                },
+              },
+            });
+          }
+        }
+
+        // Aggiorna la spesa
+        return await tx.expense.update({
+          where: { id },
+          data: {
+            ...data,
+            date: data.date ? new Date(data.date) : undefined,
+          },
+          include: {
+            category: true,
+            account: true,
+            attachments: true,
           },
         });
-      }
-
-      const expense = await prisma.expense.update({
-        where: { id },
-        data: {
-          ...data,
-          date: data.date ? new Date(data.date) : undefined,
-        },
-        include: {
-          category: true,
-          account: true,
-          attachments: true,
-        },
       });
 
       // Audit log
@@ -294,21 +343,26 @@ export class ExpenseController {
         return;
       }
 
-      // Ripristina balance
+      // Calcola il cambio di balance per ripristinare
       const balanceChange = existing.type === 'EXPENSE'
         ? Number(existing.amount)
         : -Number(existing.amount);
 
-      await prisma.account.update({
-        where: { id: existing.accountId },
-        data: {
-          balance: {
-            increment: balanceChange,
+      // Operazione atomica: elimina spesa e ripristina balance in una transazione
+      await prisma.$transaction(async (tx) => {
+        // Ripristina balance
+        await tx.account.update({
+          where: { id: existing.accountId },
+          data: {
+            balance: {
+              increment: balanceChange,
+            },
           },
-        },
-      });
+        });
 
-      await prisma.expense.delete({ where: { id } });
+        // Elimina la spesa
+        await tx.expense.delete({ where: { id } });
+      });
 
       // Audit log
       await createAuditLog({

@@ -301,24 +301,45 @@ export class LoanController {
         return;
       }
 
-      const newRemaining = currentRemaining - amount;
-      const newStatus = newRemaining === 0 ? 'PAID' : 'ACTIVE';
+      // Operazione atomica: decrementa il rimanente e aggiorna status in una transazione
+      const loan = await prisma.$transaction(async (tx) => {
+        // Re-leggi il loan per avere il valore più aggiornato
+        const currentLoan = await tx.loan.findUnique({
+          where: { id },
+        });
 
-      const loan = await prisma.loan.update({
-        where: { id },
-        data: {
-          remainingAmount: newRemaining,
-          status: newStatus,
-        },
-        include: {
-          contact: true,
-        },
+        if (!currentLoan) {
+          throw new Error('Prestito non trovato');
+        }
+
+        const newRemaining = Number(currentLoan.remainingAmount) - amount;
+
+        if (newRemaining < 0) {
+          throw new Error('L\'importo supera il debito rimanente');
+        }
+
+        const newStatus = newRemaining === 0 ? 'PAID' : 'ACTIVE';
+
+        return await tx.loan.update({
+          where: { id },
+          data: {
+            remainingAmount: newRemaining,
+            status: newStatus,
+          },
+          include: {
+            contact: true,
+          },
+        });
       });
 
       res.json({ loan });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording payment:', error);
-      res.status(500).json({ error: 'Errore nella registrazione del pagamento' });
+      if (error.message === 'L\'importo supera il debito rimanente') {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Errore nella registrazione del pagamento' });
+      }
     }
   }
 }

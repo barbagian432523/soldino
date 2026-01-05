@@ -70,7 +70,7 @@ export class CategoryController {
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const data = req.body;
+      const body = req.body;
 
       // Verifica proprietà (solo categorie utente, non quelle di sistema)
       const existing = await prisma.category.findFirst({
@@ -80,6 +80,16 @@ export class CategoryController {
       if (!existing) {
         res.status(404).json({ error: 'Categoria non trovata o non modificabile' });
         return;
+      }
+
+      // Whitelist dei campi modificabili (previene data injection)
+      const allowedFields = ['name', 'color', 'icon', 'description'];
+      const data: any = {};
+
+      for (const field of allowedFields) {
+        if (body[field] !== undefined) {
+          data[field] = body[field];
+        }
       }
 
       const category = await prisma.category.update({

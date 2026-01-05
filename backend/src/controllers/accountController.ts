@@ -56,7 +56,7 @@ export class AccountController {
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const data = req.body;
+      const body = req.body;
 
       // Verifica proprietà
       const existing = await prisma.account.findFirst({
@@ -66,6 +66,16 @@ export class AccountController {
       if (!existing) {
         res.status(404).json({ error: 'Account non trovato' });
         return;
+      }
+
+      // Whitelist dei campi modificabili (previene data injection)
+      const allowedFields = ['name', 'type', 'balance', 'currency', 'color', 'icon', 'description'];
+      const data: any = {};
+
+      for (const field of allowedFields) {
+        if (body[field] !== undefined) {
+          data[field] = body[field];
+        }
       }
 
       const account = await prisma.account.update({
@@ -97,6 +107,19 @@ export class AccountController {
 
       if (!existing) {
         res.status(404).json({ error: 'Account non trovato' });
+        return;
+      }
+
+      // Verifica se ci sono spese associate (previene dati orfani)
+      const expenseCount = await prisma.expense.count({
+        where: { accountId: id },
+      });
+
+      if (expenseCount > 0) {
+        res.status(400).json({
+          error: 'Impossibile eliminare l\'account',
+          message: `L'account contiene ${expenseCount} spese. Elimina prima tutte le spese associate o spostale su un altro account.`,
+        });
         return;
       }
 
